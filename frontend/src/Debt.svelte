@@ -8,7 +8,7 @@
   };
   export let ReturnCall = _ => {
   };
-
+  export let admin
   const nullAddress = '0x0000000000000000000000000000000000000000';
   let expirationTimeout;
   if (Date.now() < untilDate && status !== "Finished") {
@@ -58,45 +58,49 @@
   }
 </script>
 
-<div class="component">
-  <div class="left-column">
-    <h1 class="eth">{sum} BFT</h1>
-    {#if borrowerAddress === myAddress}
-      <p>You are a borrower</p>
-    {:else}
-      <p>from: <a href="/#/{borrowerAddress}">{borrowerAddress}</a></p>
-    {/if}
-    {#if debtorAddress === myAddress}
-      <p>You are a debtor</p>
-    {:else if debtorAddress === nullAddress}
-      <p>No one took it</p>
-    {:else}
-      <p>to: <a>{debtorAddress}</a></p>
-    {/if}
-  </div>
-  <div class="right-column">
-    <p>Created: {formatDate(creationDate)}</p>
-    {#if status !== 'Expired' && status !== 'Finished'}
-      <p>Time left: {timeLeft}</p>
-    {/if}
-    <div class="status">
-      <p>Bonus: </p>
-      <p style="margin-left: 0;">{plus}BFT</p>
-    </div>
-    <div class="status">
-      <p>Status: </p>
-      <p style="color: var({status === 'Expired' ? '--red-color' : '--green-color'}); margin-left: 0;">{status}</p>
-    </div>
-    <div class="buttons">
-      <button class="button" disabled={status !== "Open"} on:click={TakeCall}>Take it</button>
+{#if status !== 'Finished'}
+  <div class="component">
+    <div class="left-column">
+      <h1 class="eth">{sum} BFT</h1>
+      {#if borrowerAddress === myAddress}
+        <p>You are a borrower</p>
+      {:else}
+        <p>from: <a href="/#/{borrowerAddress}">{borrowerAddress}</a></p>
+      {/if}
       {#if debtorAddress === myAddress}
-        <button class="button" disabled={status !== "Taken" && status !== "Expired"}
-                on:click={_ => {ReturnCall(sum + plus); clearTimeout(expirationTimeout)}}>Return
-        </button>
+        <p>You are a debtor</p>
+      {:else if debtorAddress === nullAddress}
+        <p>No one took it</p>
+      {:else}
+        <p>to: <a>{debtorAddress}</a></p>
+      {/if}
+    </div>
+    <div class="right-column">
+      <p>Created: {formatDate(creationDate)}</p>
+      {#if status !== 'Expired' && status !== 'Finished'}
+        <p>Time left: {timeLeft}</p>
+      {/if}
+      <div class="status">
+        <p>Bonus: </p>
+        <p style="margin-left: 0;">{plus}BFT</p>
+      </div>
+      <div class="status">
+        <p>Status: </p>
+        <p style="color: var({status === 'Expired' ? '--red-color' : '--green-color'}); margin-left: 0;">{status}</p>
+      </div>
+      {#if !admin}
+        <div class="buttons">
+          <button class="button" disabled={status !== "Open"} on:click={TakeCall}>Take it</button>
+          {#if debtorAddress === myAddress}
+            <button class="button" disabled={status !== "Taken" && status !== "Expired"}
+                    on:click={_ => {ReturnCall(Number(sum) + Number(plus)); clearTimeout(expirationTimeout)}}>Return
+            </button>
+          {/if}
+        </div>
       {/if}
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   .component {
@@ -104,7 +108,7 @@
     border-radius: 20px;
     background: #eae8e9;
     box-shadow: 16px 16px 38px #c7c5c6, -16px -16px 38px #ffffff;
-    max-width: 600px;
+    max-width: 500px;
     width: 70%;
     display: flex;
     padding: 30px 60px;

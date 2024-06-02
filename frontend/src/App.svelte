@@ -1,33 +1,32 @@
 <script>
   import {ethStore, web3, selectedAccount, connected, chainName, nativeCurrency} from 'svelte-web3';
   import Router from 'svelte-spa-router';
+  import Admin from './Admin.svelte'
   import Page from './Page.svelte';
 
   const routes = {
-    '/*': Page,
+    '/': Page,
+    '/admin': Admin
   };
 </script>
 
 <Router {routes}/>
 
-
-<footer>
-  <p>Web3 injected in window:
-    <i class:green={window.Web3} class:red={!window.Web3}>{ window.Web3 ? 'yes' : 'no' }</i>
-  </p>
-  {#if $connected}
-    <p class="green">Blockchain is connected!</p>
-  {:else}
-    <p>Blockchain is not connected!</p>
-  {/if}
-  <p>Web3 version: {$web3.version} </p>
-  {#if !$web3.version}
-    Please check that web3 as been added in public/index.html with the line:
-    <pre>
-      &lt;script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js">&lt;/script>
-    </pre>
-  {/if}
-</footer>
+<!--  <p>Web3 injected in window:-->
+<!--    <i class:green={window.Web3} class:red={!window.Web3}>{ window.Web3 ? 'yes' : 'no' }</i>-->
+<!--  </p>-->
+<!--  {#if $connected}-->
+<!--    <p class="green">Blockchain is connected!</p>-->
+<!--  {:else}-->
+<!--    <p>Blockchain is not connected!</p>-->
+<!--  {/if}-->
+<!--  <p>Web3 version: {$web3.version} </p>-->
+<!--  {#if !$web3.version}-->
+<!--    Please check that web3 as been added in public/index.html with the line:-->
+<!--    <pre>-->
+<!--      &lt;script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js">&lt;/script>-->
+<!--    </pre>-->
+<!--  {/if}-->
 
 
 <style>

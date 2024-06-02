@@ -29,6 +29,10 @@
     return coins;
   }
 
+  async function expired(address, index) {
+
+  }
+
   async function getContract(address) {
     const networkId = await $web3.eth.net.getId();
     const deployedNetwork = Credit.networks[networkId];
@@ -43,12 +47,12 @@
 
   async function update() {
     instance = await getContract(myAddress);
-    coins = await getCoins(myAddress);
+    coins = await getCoins(showAddress);
     debts = await getDebts(showAddress);
-    console.log(debts)
   }
 
   async function createDebt(amount = 1, bonus = 2, period = 1000) {
+    instance = await getContract(myAddress)
     await instance.methods.createDebt(amount, bonus, period).send();
     await update();
   }
@@ -62,7 +66,7 @@
     // let debt = await instance.methods.getDebts(address, index).call();
     // let value = parseInt(debt[2]) + parseInt(debt[3]);
     // console.log(value);
-    await instance.methods.returnDebt(index).send().catch(err => console.log(err));
+    await instance.methods.returnDebt(index).send();
     await update()
   }
 
@@ -70,11 +74,11 @@
   onMount(async () => {
     await ethStore.setProvider(provider);
     accounts = await $web3.eth.getAccounts();
-    me = {value: accounts[1], label: accounts[1]}
+    me = {value: accounts[0], label: accounts[0]}
     other = {value: accounts[0], label: accounts[0]}
-    console.log(debts)
+    await update()
   })
-  let me, other;
+  let me, other
   $: myAddress = me && me.value || accounts[0];
   $: showAddress = (other && other.value) || myAddress;
 
@@ -86,7 +90,6 @@
     status = statuses[status];
     untilDate = new Date(Number(untilDate) * 1000);
     creationDate = new Date(Number(creationDate) * 1000);
-    console.log(status)
     return {debtorAddress, borrowerAddress, sum, plus, untilDate, creationDate, status};
   }
 
@@ -99,10 +102,7 @@
   <h1 class="text-gray-600">Open Credits</h1>
   {#if $connected}
     <Modal bind:open {coins} clickCallback={createDebt}/>
-    <div class="selects">
-      <Select placeholder="Choose your address" items={accounts}
-              bind:selectedValue={me} on:select={update}/>
-    </div>
+    <p>Админский доступ</p>
     {#if me && other}
       <div class="header-wrapper">
         {#if myAddress === showAddress}
@@ -121,6 +121,7 @@
                 ExpirationCall={_ => expired(showAddress, i)}
                 TakeCall={_ => takeDebt(showAddress, i)}
                 ReturnCall={(value) => returnDebt(showAddress, i, value)}
+                admin="true"
           />
         {/each}
       </div>
