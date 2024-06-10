@@ -58,7 +58,7 @@
   }
 </script>
 
-{#if status !== 'Finished'}
+{#if status !== 'Finished' || admin}
   <div class="component">
     <div class="left-column">
       <h1 class="eth">{sum} BFT</h1>

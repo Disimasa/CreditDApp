@@ -44,8 +44,7 @@
   async function update() {
     instance = await getContract(myAddress);
     coins = await getCoins(myAddress);
-    debts = await getDebts(showAddress);
-    console.log(debts)
+    debts = [...debts, ...await getDebts(showAddress)];
   }
 
   async function createDebt(amount = 1, bonus = 2, period = 1000) {
@@ -70,13 +69,22 @@
   onMount(async () => {
     await ethStore.setProvider(provider);
     accounts = await $web3.eth.getAccounts();
-    me = {value: accounts[1], label: accounts[1]}
     other = {value: accounts[0], label: accounts[0]}
-    console.log(debts)
   })
-  let me, other;
-  $: myAddress = me && me.value || accounts[0];
-  $: showAddress = (other && other.value) || myAddress;
+  let other;
+  $: showAddress =(other && other.value);
+  $: if (window.ethereum) {
+    getAccount()
+  }
+  $: console.log(debts)
+
+  async function getAccount() {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+    if (accounts.length !== 0) {
+      myAddress = accounts[0]
+      await update()
+    }
+  }
 
   const statuses = {0: 'Expired', 1: 'Open', 2: 'Taken', 3: 'Finished'}
 
@@ -96,39 +104,34 @@
 
 
 <main>
-  <h1 class="text-gray-600">Open Credits</h1>
-  {#if $connected}
-    <Modal bind:open {coins} clickCallback={createDebt}/>
-    <div class="selects">
-      <Select placeholder="Choose your address" items={accounts}
-              bind:selectedValue={me} on:select={update}/>
-    </div>
-    {#if me && other}
-      <div class="header-wrapper">
-        {#if myAddress === showAddress}
-          <h2>My coins: {coins} BigFlexTokens</h2>
-          <!--          <button class="button" on:click={createDebt}>New Debt</button>-->
-          <button class="button" on:click={_ => open = true}>New Debt</button>
-        {:else}
-          <h2>Coins: {coins} BigFlexTokens</h2>
-        {/if}
+  {#if myAddress}
+    <h1 class="text-gray-600">Open Credits</h1>
+    {#if $connected}
+      <Modal bind:open {coins} clickCallback={createDebt}/>
+      {#if other}
+        <div class="header-wrapper">
+        <h2>My coins: {coins} BigFlexTokens</h2>
+        <!--          <button class="button" on:click={createDebt}>New Debt</button>-->
 
-      </div>
-      <div class="debts">
-        {#each debts as debt, i}
-          <!--TODO Update component-->
-          <Debt myAddress={myAddress} {...unpackDebt(debt)}
-                ExpirationCall={_ => expired(showAddress, i)}
-                TakeCall={_ => takeDebt(showAddress, i)}
-                ReturnCall={(value) => returnDebt(showAddress, i, value)}
-          />
-        {/each}
+        </div>
+        <div class="debts">
+          {#each debts as debt, i}
+            <!--TODO Update component-->
+            <Debt myAddress={myAddress} {...unpackDebt(debt)}
+                  ExpirationCall={_ => expired(showAddress, i)}
+                  TakeCall={_ => takeDebt(showAddress, i)}
+                  ReturnCall={(value) => returnDebt(showAddress, i, value)}
+            />
+          {/each}
+        </div>
+      {/if}
+    {:else}
+      <div class="spinner-wrapper">
+        <Circle3 size="100" unit="px" duration="2s"/>
       </div>
     {/if}
   {:else}
-    <div class="spinner-wrapper">
-      <Circle3 size="100" unit="px" duration="2s"/>
-    </div>
+    <h2 style="margin: auto; font-size: 20px; border: 2px solid gray; border-radius: 15px; padding: 10px">Подключите кошелек через Metamask!</h2>
   {/if}
 
 </main>

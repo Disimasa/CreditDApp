@@ -1,18 +1,18 @@
 const Credit = artifacts.require('Credit')
-var assert = require('chai').assert
-var expect = require('chai').expect
+// var assert = require('chai').assert
+// var expect = require('chai').expect
 
-
-contract('Credit', (accounts) => {
+contract('Credit', async (accounts) => {
+    const chai = await import('chai')
+    const assert = chai.assert
+    const expect = chai.expect
     let tempcredit;
     var mainAccount = accounts[0];
     const sum = 100
     const bonus = 100
     const period = 4
-    before( async () => {
-        tempcredit = await Credit.deployed();
-    })
-    
+
+    tempcredit = await Credit.deployed()
     describe('when we create contract firstly', () => {
         it('should be 500000 bigflextokens on account', async function(){
             const count = await tempcredit.tokenBalance(mainAccount);
